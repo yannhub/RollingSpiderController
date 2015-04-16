@@ -1,3 +1,5 @@
-This project is based on https://github.com/ARDroneSDK3/Samples/tree/master/Android/RollingSpiderPiloting
+This project was started from Parrot ARDroneSDK3 android sample project
+https://github.com/ARDroneSDK3/Samples/tree/master/Android/RollingSpiderPiloting
 
-It also make use of https://github.com/zerokol/JoystickView
+It make use of the JoystickView created by zerokol
+https://github.com/zerokol/JoystickView
