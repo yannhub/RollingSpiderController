@@ -1,5 +1,5 @@
 # RollingSpiderController
-Controller mobile application for Parrot RollingSpider drone 
+Mobile application for controlling the Parrot RollingSpider drone 
 
 The purpose of this project is to have new ways to control the RollingSpider drone.
 
