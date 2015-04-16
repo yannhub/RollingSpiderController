@@ -1,10 +1,2 @@
-==================
-Purpose of RollingSpiderPiloting
-==================
-
-This sample shows how to send and receive commands to communicate with a Parrot drone. The example is based on the Rolling Spider used with Android device.
-
-This example enables you to **discover** and **connect** to a RollingSpider and **send and receive commands** to pilot it and get its battery level.
-
-These sample sources are an Android gradle project building for Android devices.
-
+This project is based on https://github.com/ARDroneSDK3/Samples/tree/master/Android/RollingSpiderPiloting
+It also make use of https://github.com/zerokol/JoystickView
