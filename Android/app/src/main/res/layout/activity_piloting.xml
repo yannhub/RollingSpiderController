@@ -41,7 +41,7 @@
         android:id="@+id/textView"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -51,7 +51,7 @@
         android:id="@+id/batteryLabel"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/textView"
-        android:layout_toEndOf="@+id/textView"/>
+        android:layout_toEndOf="@+id/textView" />
 
     <view
         android:layout_width="200dp"
@@ -76,10 +76,66 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="debug"
+        android:text="debug : "
         android:id="@+id/debugLabel"
         android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/joystickRight"
-        android:layout_alignEnd="@+id/joystickRight" />
+        android:layout_alignEnd="@+id/joystickRight"
+        android:layout_alignBottom="@+id/batteryLabel"
+        android:layout_alignLeft="@+id/joystickRight"
+        android:layout_alignStart="@+id/joystickRight" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="auto pilot"
+        android:id="@+id/autoPilotBt"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/takeoffBt"
+        android:layout_alignStart="@+id/takeoffBt"
+        android:layout_alignRight="@+id/takeoffBt"
+        android:layout_alignEnd="@+id/takeoffBt" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="pitch:"
+        android:id="@+id/pitchLabel"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/joystickRight"
+        android:layout_alignEnd="@+id/joystickRight"
+        android:gravity="right" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="roll:"
+        android:id="@+id/rollLabel"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/joystickRight"
+        android:layout_alignStart="@+id/joystickRight" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="yaw:"
+        android:id="@+id/yawLabel"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="gaz : "
+        android:id="@+id/gazLabel"
+        android:gravity="right"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/joystickLeft"
+        android:layout_alignEnd="@+id/joystickLeft" />
 
 </RelativeLayout>

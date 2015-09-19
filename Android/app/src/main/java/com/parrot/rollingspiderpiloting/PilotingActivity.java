@@ -2,11 +2,8 @@ package com.parrot.rollingspiderpiloting;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -14,9 +11,14 @@ import android.widget.TextView;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 import java.sql.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class PilotingActivity extends Activity implements DeviceControllerListener
 {
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     private static String TAG = PilotingActivity.class.getSimpleName();
     public static String EXTRA_DEVICE_SERVICE = "pilotingActivity.extra.device.service";
 
@@ -27,10 +29,16 @@ public class PilotingActivity extends Activity implements DeviceControllerListen
     private Button takeoffBt;
     private Button landingBt;
 
+    private Button autoPilotBt;
+
     private JoystickView joystickLeft;
     private JoystickView joystickRight;
 
     private TextView debugLabel;
+    private TextView yawLabel;
+    private TextView gazLabel;
+    private TextView rollLabel;
+    private TextView pitchLabel;
 
     private TextView batteryLabel;
 
@@ -38,6 +46,15 @@ public class PilotingActivity extends Activity implements DeviceControllerListen
 
     public static float easeIn (float t,float b , float c, float d) {
         return c*(t/=d)*t*t + b;
+    }
+
+    public static float easeOut (float t,float b , float c, float d) {
+        return c*((t=t/d-1)*t*t + 1) + b;
+    }
+
+    public static float  easeInOut(float t,float b , float c, float d) {
+        if ((t/=d/2) < 1) return -c/2 * ((float)Math.sqrt(1 - t*t) - 1) + b;
+        return c/2 * ((float)Math.sqrt(1 - (t-=2)*t) + 1) + b;
     }
 
 
@@ -48,6 +65,10 @@ public class PilotingActivity extends Activity implements DeviceControllerListen
         setContentView(R.layout.activity_piloting);
 
         debugLabel = (TextView) findViewById(R.id.debugLabel);
+        yawLabel = (TextView) findViewById(R.id.yawLabel);
+        gazLabel = (TextView) findViewById(R.id.gazLabel);
+        rollLabel = (TextView) findViewById(R.id.rollLabel);
+        pitchLabel = (TextView) findViewById(R.id.pitchLabel);
 
 
         emergencyBt = (Button) findViewById(R.id.emergencyBt);
@@ -82,6 +103,61 @@ public class PilotingActivity extends Activity implements DeviceControllerListen
             }
         });
 
+        autoPilotBt = (Button) findViewById(R.id.autoPilotBt);
+        autoPilotBt.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)
+            {
+
+                deviceController.sendMaxRotationSpeed(360);
+                deviceController.sendMaxTiltSpeed(12);
+                deviceController.sendMaxVerticalSpeed(1.5f);
+
+
+                PilotingCommandTask pilotingCommandTask = new PilotingCommandTask(deviceController, scheduler);
+
+                PilotingCommand takeoffCommand = new PilotingCommand(true, false, 0, 0, 0, 0, 0);
+                pilotingCommandTask.pilotingCommands.add(takeoffCommand);
+
+                PilotingCommand waitCommand = new PilotingCommand(true, false, 0, 0, 0, 0, 6000);
+                pilotingCommandTask.pilotingCommands.add(waitCommand);
+
+                int delay =  20;
+                int power = 12;
+                int nbSteps = 400;
+
+                int nbStepsByPhase = (int)nbSteps/4;
+                int nbStepPhase1 = nbStepsByPhase;
+                int nbStepPhase2 = nbStepsByPhase*2;
+                int nbStepPhase3 = nbStepsByPhase*3;
+
+                for (int step=0; step<=nbSteps; step++) {
+                    int gaz = 0;
+                    int roll = 0;
+
+                    if(step > nbStepPhase3) {
+                        gaz = -power;
+                        roll = (int) (power*1.5);
+                    } else if (step > nbStepPhase2) {
+                        gaz = -power;
+                        roll = -power;
+                    } else if (step > nbStepPhase1) {
+                        gaz = power;
+                        roll = (int) (-power*1.5);
+                    } else {
+                        gaz = power;
+                        roll = power;
+                    }
+                    PilotingCommand pilotingCommand = new PilotingCommand(false, false, gaz, 0, 0, roll, delay);
+                    pilotingCommandTask.pilotingCommands.add(pilotingCommand);
+                }
+
+                PilotingCommand landingCommand = new PilotingCommand(false, true, 0, 0, 0, 0, 0);
+                pilotingCommandTask.pilotingCommands.add(landingCommand);
+
+                scheduler.schedule(pilotingCommandTask, takeoffCommand.delay, TimeUnit.MILLISECONDS);
+            }
+        });
+
 
         joystickLeft = (JoystickView) findViewById(R.id.joystickLeft);
         //Event listener that always returns the variation of the angle in degrees, motion power in percentage and direction of movement
@@ -107,7 +183,8 @@ public class PilotingActivity extends Activity implements DeviceControllerListen
                 gaz = (int) easeIn(gaz,0,100*sign,100);
                 if (deviceController != null)
                 {
-                    debugLabel.setText(String.format("yaw: %d, gaz: %d",yaw, gaz));
+                    yawLabel.setText(String.format("yaw: %d", yaw));
+                    gazLabel.setText(String.format("gaz: %d", gaz));
                     deviceController.setYaw((byte) yaw);
                     deviceController.setGaz((byte) gaz);
                 }
@@ -127,7 +204,8 @@ public class PilotingActivity extends Activity implements DeviceControllerListen
                 int pitch = (int) (Math.cos(Math.toRadians(angle))*power);
                 if (deviceController != null)
                 {
-                    //debugLabel.setText(String.format("roll: %d",roll));
+                    rollLabel.setText(String.format("roll: %d", roll));
+                    pitchLabel.setText(String.format("pitch: %d", pitch));
                     deviceController.setRoll((byte)roll);
                     deviceController.setPitch((byte)pitch);
                     if (pitch != 0 || roll != 0) {
